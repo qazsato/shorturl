@@ -1,5 +1,6 @@
 {
   "name": "shorturl",
+  "version": "0.1.0",
   "scripts": {
     "deploy": "sls deploy"
   },
