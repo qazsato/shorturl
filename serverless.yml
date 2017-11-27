@@ -18,14 +18,20 @@ provider:
       Resource: "arn:aws:dynamodb:ap-northeast-1:*:*"
 
 functions:
-  hello:
-    handler: handler.long2short
+  short2long:
+    handler: handler.short2long
     timeout: 30
     events:
       - http:
           path: /
           method: get
-
+  long2short:
+    handler: handler.long2short
+    timeout: 30
+    events:
+      - http:
+          path: /url
+          method: get
 resources:
   Resources:
     shorturl:
