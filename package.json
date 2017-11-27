@@ -1,0 +1,10 @@
+{
+  "name": "shorturl",
+  "scripts": {
+    "deploy": "sls deploy"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "serverless": "1.24.1"
+  }
+}
