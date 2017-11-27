@@ -19,7 +19,12 @@ provider:
 
 functions:
   hello:
-    handler: handler.hello
+    handler: handler.long2short
+    timeout: 30
+    events:
+      - http:
+          path: /
+          method: get
 
 resources:
   Resources:
