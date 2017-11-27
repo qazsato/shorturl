@@ -23,8 +23,12 @@ functions:
     timeout: 30
     events:
       - http:
-          path: /
+          path: /{id}
           method: get
+          request:
+            parameters:
+              paths:
+                id: true
   long2short:
     handler: handler.long2short
     timeout: 30
@@ -32,6 +36,10 @@ functions:
       - http:
           path: /url
           method: get
+          request:
+            parameters:
+              querystrings:
+                longUrl: true
 resources:
   Resources:
     shorturl:
