@@ -17,7 +17,7 @@ module.exports.short2long = (event, context, callback) => {
       '#id': 'id'
     },
     ExpressionAttributeValues: {
-      ':id': event.queryStringParameters.id
+      ':id': event.pathParameters.id
     }
   };
   dynamo.query(params, (err, data) => {
