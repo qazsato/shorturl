@@ -42,6 +42,13 @@ module.exports.short2long = (event, context, callback) => {
  * @param {*} callback
  */
 module.exports.long2short = (event, context, callback) => {
+  const url = event.queryStringParameters.longUrl;
+  if (!isValidUrl(url)) {
+    // TODO 4xxエラーで返却する(無効なURL形式)
+  }
+  if (!isEnabledDomain(url)) {
+    // TODO 4xxエラーで返却する(無許可のドメイン)
+  }
   sequence((id) => {
     dynamo.put({TableName: 'shorturl', Item: {
       id: String(id),
@@ -50,6 +57,10 @@ module.exports.long2short = (event, context, callback) => {
   });
 };
 
+/**
+ * シーケンス(通し番号)を発行します。
+ * @param {function} callback
+ */
 function sequence(callback) {
   const params = {
     TableName: 'shorturl_sequence',
@@ -72,4 +83,35 @@ function sequence(callback) {
     }
     callback(id);
   });
+}
+
+/**
+ * 適切なURLの形式か判定します。
+ * @param {string} url URL文字列
+ */
+function isValidUrl(url) {
+  try {
+    new URL(url);
+  } catch(e) {
+    return false;
+  }
+  return true;
+}
+
+/**
+ * ドメインリストに含まれているURLか判定します。
+ * @param {string} url URL文字列
+ */
+function isEnabledDomain(url) {
+  if (domains.length === 0) {
+    return true;
+  }
+  const urlA = new URL(url);
+  for (const domain of domains) {
+    const urlB = new URL(domain);
+    if (urlA.host === urlB.host) {
+      return true;
+    }
+  }
+  return false;
 }
