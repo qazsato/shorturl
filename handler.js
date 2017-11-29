@@ -1,5 +1,6 @@
 'use strict';
 const domains = require('./domain.json');
+const URL = require('url');
 const AWS = require('aws-sdk');
 const dynamo = new AWS.DynamoDB.DocumentClient();
 
@@ -45,14 +46,17 @@ module.exports.long2short = (event, context, callback) => {
   const url = event.queryStringParameters.longUrl;
   if (!isValidUrl(url)) {
     // TODO 4xxエラーで返却する(無効なURL形式)
+    // https://serverless.com/framework/docs/providers/aws/events/apigateway/
+    callback(new Error('[404] Not found'));
   }
   if (!isEnabledDomain(url)) {
     // TODO 4xxエラーで返却する(無許可のドメイン)
+    callback(new Error('[404] Not found'));
   }
   sequence((id) => {
     dynamo.put({TableName: 'shorturl', Item: {
       id: String(id),
-      long_url: event.queryStringParameters.longUrl
+      long_url: url
     }}, callback);
   });
 };
@@ -90,12 +94,10 @@ function sequence(callback) {
  * @param {string} url URL文字列
  */
 function isValidUrl(url) {
-  try {
-    new URL(url);
-  } catch(e) {
-    return false;
+  if (URL.parse(url).host) {
+    return true;
   }
-  return true;
+  return false;
 }
 
 /**
@@ -106,9 +108,9 @@ function isEnabledDomain(url) {
   if (domains.length === 0) {
     return true;
   }
-  const urlA = new URL(url);
+  const urlA = URL.parse(url);
   for (const domain of domains) {
-    const urlB = new URL(domain);
+    const urlB = URL.parse(domain);
     if (urlA.host === urlB.host) {
       return true;
     }
