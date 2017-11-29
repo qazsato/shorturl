@@ -49,14 +49,22 @@ module.exports.long2short = (event, context, callback) => {
       statusCode: 400,
       body: JSON.stringify({message: 'Bad Request'})
     };
-    callback(null, response);
-    return;
+    return callback(null, response);
   }
   sequence((id) => {
     dynamo.put({TableName: 'shorturl', Item: {
-      id: String(id),
-      long_url: url
-    }}, callback);
+        id: String(id),
+        long_url: url
+      }}, (err, data) => {
+        const response = {
+          statusCode: 200,
+          body: JSON.stringify({
+            id: `https://${event.headers.Host}/v1/${id}`,
+            long_url: url
+          })
+        };
+        callback(null, response)
+      });
   });
 };
 
