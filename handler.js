@@ -44,14 +44,13 @@ module.exports.short2long = (event, context, callback) => {
  */
 module.exports.long2short = (event, context, callback) => {
   const url = event.queryStringParameters.longUrl;
-  if (!isValidUrl(url)) {
-    // TODO 4xxエラーで返却する(無効なURL形式)
-    // https://serverless.com/framework/docs/providers/aws/events/apigateway/
-    callback(new Error('[404] Not found'));
-  }
-  if (!isEnabledDomain(url)) {
-    // TODO 4xxエラーで返却する(無許可のドメイン)
-    callback(new Error('[404] Not found'));
+  if (!isValidUrl(url) || !isEnabledDomain(url)) {
+    const response = {
+      statusCode: 400,
+      body: JSON.stringify({message: 'Bad Request'})
+    };
+    callback(null, response);
+    return;
   }
   sequence((id) => {
     dynamo.put({TableName: 'shorturl', Item: {
@@ -77,12 +76,9 @@ function sequence(callback) {
     },
     ReturnValues: 'UPDATED_NEW'
   };
-  dynamo.update(params, function(err, data) {
+  dynamo.update(params, (err, data) => {
     let id;
-    if (err) {
-      console.error('Unable to update item. Error JSON:', JSON.stringify(err, null, 2));
-    } else {
-      console.log('UpdateItem succeeded:', JSON.stringify(data, null, 2));
+    if (!err) {
       id = data.Attributes.current_number;
     }
     callback(id);
