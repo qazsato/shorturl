@@ -1,6 +1,7 @@
 'use strict';
 const domains = require('./domain.json');
 const URL = require('url');
+const CryptoJS = require('crypto-js');
 const AWS = require('aws-sdk');
 const dynamo = new AWS.DynamoDB.DocumentClient();
 
@@ -51,10 +52,11 @@ module.exports.long2short = (event, context, callback) => {
     return callback(null, response);
   }
   sequence((id) => {
+    const hash = CryptoJS.AES.encrypt(String(id), 'test').toString();
     const params = {
       TableName: 'shorturl',
       Item: {
-        id: String(id),
+        id: hash,
         long_url: url
       }
     };
@@ -65,7 +67,7 @@ module.exports.long2short = (event, context, callback) => {
       const response = {
         statusCode: 200,
         body: JSON.stringify({
-          id: `https://${event.headers.Host}/v1/${id}`,
+          id: `https://${event.headers.Host}/v1/${hash}`,
           long_url: url
         })
       };
