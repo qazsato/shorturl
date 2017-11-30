@@ -23,16 +23,15 @@ module.exports.short2long = (event, context, callback) => {
   };
   dynamo.query(params, (err, data) => {
     if (err) {
-      callback(err);
-    } else {
-      const response = {
-        statusCode: 302,
-        headers: {
-          'Location': data.Items[0].long_url
-        }
-      };
-      return callback(null, response);
+      return callback(err);
     }
+    const response = {
+      statusCode: 302,
+      headers: {
+        'Location': data.Items[0].long_url
+      }
+    };
+    callback(null, response);
   });
 };
 
@@ -52,19 +51,26 @@ module.exports.long2short = (event, context, callback) => {
     return callback(null, response);
   }
   sequence((id) => {
-    dynamo.put({TableName: 'shorturl', Item: {
+    const params = {
+      TableName: 'shorturl',
+      Item: {
         id: String(id),
         long_url: url
-      }}, (err, data) => {
-        const response = {
-          statusCode: 200,
-          body: JSON.stringify({
-            id: `https://${event.headers.Host}/v1/${id}`,
-            long_url: url
-          })
-        };
-        callback(null, response)
-      });
+      }
+    };
+    dynamo.put(params, (err, data) => {
+      if (err) {
+        return callback(err);
+      }
+      const response = {
+        statusCode: 200,
+        body: JSON.stringify({
+          id: `https://${event.headers.Host}/v1/${id}`,
+          long_url: url
+        })
+      };
+      callback(null, response);
+    });
   });
 };
 
