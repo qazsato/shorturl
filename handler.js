@@ -6,9 +6,9 @@ const dynamo = new AWS.DynamoDB.DocumentClient();
 
 /**
  * 短縮URLをオリジナルに復元しリダイレクトします。
- * @param {*} event
- * @param {*} context
- * @param {*} callback
+ * @param {*} event 関数呼出し時に渡されるイベントの情報。
+ * @param {*} context ランタイム情報を格納。関数内部からも参照可能。
+ * @param {*} callback 返り値を定義する。
  */
 module.exports.short2long = (event, context, callback) => {
   const params = {
@@ -38,9 +38,9 @@ module.exports.short2long = (event, context, callback) => {
 
 /**
  * 短縮URLを発行します。
- * @param {*} event
- * @param {*} context
- * @param {*} callback
+ * @param {*} event 関数呼出し時に渡されるイベントの情報。
+ * @param {*} context ランタイム情報を格納。関数内部からも参照可能。
+ * @param {*} callback 返り値を定義する。
  */
 module.exports.long2short = (event, context, callback) => {
   const url = event.queryStringParameters.longUrl;
